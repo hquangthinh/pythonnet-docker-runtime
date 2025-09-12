@@ -5,6 +5,7 @@ on:
     workflows: ["build base image aspnet9"]
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   build:
