@@ -1,5 +1,5 @@
 
-FROM mcr.microsoft.com/dotnet/nightly/aspnet:10.0-preview AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 
 # Install python runtime and dependencies
 # https://github.com/docker-library/python/blob/b34fc81375758e84dec797e9210a079b4889352e/3.12/bookworm/Dockerfile
