@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Update README image/tag documentation to match workflow-published naming and current CI coverage.
+- Add AGENTS.md with repository-specific guidance for image layout, CI behavior, and local verification commands.
+
 ## [0.0.3] - 2025-07-09
 
 ### Added
