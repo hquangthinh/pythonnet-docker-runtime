@@ -4,7 +4,7 @@ Docker image definitions that combine ASP.NET runtime + CPython, with optional `
 
 ## Published image tags (CI-managed)
 
-GitHub Actions currently publishes only the `python3.12/bookworm` variants to:
+GitHub Actions currently publishes these variants to:
 
 `<docker-username>/dotnet-python:<dotnet>-<python>-<distro>[-pythonnet|-pythonnet-recordlinkage]`
 
@@ -13,6 +13,7 @@ GitHub Actions currently publishes only the `python3.12/bookworm` variants to:
 | 8.0    | 3.12   | bookworm | `<user>/dotnet-python:8.0-3.12-bookworm`           | `<user>/dotnet-python:8.0-3.12-bookworm-pythonnet`                | `<user>/dotnet-python:8.0-3.12-bookworm-pythonnet-recordlinkage`                                        |
 | 9.0    | 3.12   | bookworm | `<user>/dotnet-python:9.0-3.12-bookworm`           | `<user>/dotnet-python:9.0-3.12-bookworm-pythonnet`                | `<user>/dotnet-python:9.0-3.12-bookworm-pythonnet-recordlinkage`                                        |
 | 10.0   | 3.12   | bookworm | `<user>/dotnet-python:10.0-3.12-bookworm`          | `<user>/dotnet-python:10.0-3.12-bookworm-pythonnet`               | `<user>/dotnet-python:10.0-3.12-bookworm-pythonnet-recordlinkage`                                       |
+| 10.0   | 3.13   | bookworm | `<user>/dotnet-python:10.0-3.13-bookworm`          | `<user>/dotnet-python:10.0-3.13-bookworm-pythonnet`               | `<user>/dotnet-python:10.0-3.13-bookworm-pythonnet-recordlinkage`                                       |
 
 ## Variants present in source (not yet published by workflows)
 
@@ -22,11 +23,17 @@ GitHub Actions currently publishes only the `python3.12/bookworm` variants to:
 ## Dependency stacks
 
 - `pythonnet` images: `pythonnet==3.0.3` (3.12) or `pythonnet==3.0.5` (3.13)
-- `recordlinkage` images add:
+- `recordlinkage` images (3.12/bookworm) add:
   - `numpy==2.0.1`
   - `pandas==2.2.2`
   - `pydantic==2.8.2`
   - `jellyfish==1.1.0`
+  - `recordlinkage==0.16`
+- `recordlinkage` image (10.0-3.13-bookworm) adds:
+  - `numpy==2.4.4`
+  - `pandas==2.3.3`
+  - `pydantic==2.13.3`
+  - `jellyfish==1.2.1`
   - `recordlinkage==0.16`
 
 ## Build locally

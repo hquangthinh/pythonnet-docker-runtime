@@ -11,11 +11,12 @@
   - `..._recordlinkage/<distro>/Dockerfile`
 - Current distro matrix in tree:
   - `aspnet8/9/10 + python3.12` on `bookworm`
-  - `aspnet10 + python3.13` on `alpine3` and `azurelinux`
+  - `aspnet10 + python3.13` on `bookworm`, `alpine3`, and `azurelinux`
 
 ## CI/CD Truths (Easy To Miss)
-- Only `python3.12/bookworm` variants are wired in CI right now (`.github/workflows/*python312*`).
-- `python3.13` (`alpine3`, `azurelinux`) Dockerfiles exist but have no workflow file in `.github/workflows/`.
+- `python3.12/bookworm` variants for `aspnet8/9/10` are wired in CI.
+- `python3.13/bookworm` variants for `aspnet10` are also wired in CI (`.github/workflows/*python313*bookworm*`).
+- `python3.13` on `alpine3` and `azurelinux` still have Dockerfiles but no workflow file in `.github/workflows/`.
 - Base workflows trigger on `push`, `pull_request`, and `workflow_dispatch`, and use `docker/build-push-action` with `push: true`.
 - Pythonnet/recordlinkage workflows run via `workflow_run` after base workflow completion.
 
