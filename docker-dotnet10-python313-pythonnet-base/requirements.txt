@@ -1,0 +1,6 @@
+numpy==2.4.4
+pandas==2.3.3
+pydantic==2.13.3
+jellyfish==1.2.1
+recordlinkage==0.16
+pythonnet==3.0.5
