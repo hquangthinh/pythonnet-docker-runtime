@@ -2,6 +2,8 @@
 
 Docker image definitions that combine ASP.NET runtime + CPython, with optional `pythonnet` and `recordlinkage` stacks.
 
+The repository also contains standalone ASP.NET 10 + CPython base images under `docker-dotnet10-*-pythonnet-base/` for application Dockerfiles that want a richer prebuilt runtime parent.
+
 ## Published image tags (CI-managed)
 
 GitHub Actions currently publishes these variants to:
@@ -20,9 +22,25 @@ GitHub Actions currently publishes these variants to:
 - `aspnet10 + python3.13 + alpine3` (base/pythonnet/recordlinkage)
 - `aspnet10 + python3.13 + azurelinux` (base/pythonnet/recordlinkage)
 
+## Standalone pythonnet base images
+
+These workflows publish separate Docker Hub repositories instead of the `dotnet-python:<tag>` matrix:
+
+| Image repository | Tag |
+|------------------|-----|
+| `<user>/dotnet10-python313-pythonnet-base` | `10.0-python3.13-noble` |
+| `<user>/dotnet10-python314-pythonnet-base` | `10.0-python3.14-noble` |
+
 ## Dependency stacks
 
 - `pythonnet` images: `pythonnet==3.0.3` (3.12) or `pythonnet==3.0.5` (3.13)
+- Standalone `dotnet10-python314-pythonnet-base` uses `pythonnet==3.1.0rc0` because `pythonnet==3.0.5` caps support at `<3.14`, and adds:
+  - `splink==4.0.16`
+  - `duckdb==1.5.3`
+  - `jellyfish==1.2.1`
+  - `polars==1.41.2`
+  - `pyarrow==24.0.0`
+  - `pydantic==2.13.4`
 - `recordlinkage` images (3.12/bookworm) add:
   - `numpy==2.0.1`
   - `pandas==2.2.2`

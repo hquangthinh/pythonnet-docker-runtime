@@ -1,0 +1,7 @@
+splink==4.0.16
+duckdb==1.5.3
+jellyfish==1.2.1
+polars==1.41.2
+pyarrow==24.0.0
+pydantic==2.13.4
+pythonnet==3.1.0rc0
