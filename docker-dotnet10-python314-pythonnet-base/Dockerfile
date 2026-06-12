@@ -100,7 +100,9 @@ ARG VENV_PATH
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Runtime libraries used by CPython and common scientific packages. Compilers
-# and headers are intentionally excluded from the production image.
+# and headers are intentionally excluded from the production image. wkhtmltopdf
+# comes from Ubuntu Noble because the archived upstream packages target older
+# distro libraries such as libjpeg.so.62 that Noble no longer ships.
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
@@ -120,6 +122,7 @@ RUN set -eux; \
         libuuid1 \
         libzstd1 \
         tk \
+        wkhtmltopdf \
         zlib1g; \
     rm -rf /var/lib/apt/lists/*
 
@@ -149,4 +152,5 @@ RUN set -eux; \
     python -c "import sys; print(sys.executable); print(sys.version)"; \
     python -c "import pythonnet; print('pythonnet import OK')"; \
     python -c "from pythonnet import load; load('coreclr'); import clr; print('coreclr load OK')"; \
-    python -c "import splink,duckdb,jellyfish,polars,pyarrow,pydantic; print('data packages OK')"
+    python -c "import splink,duckdb,jellyfish,polars,pyarrow,pydantic; print('data packages OK')"; \
+    wkhtmltopdf --version

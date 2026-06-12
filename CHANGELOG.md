@@ -11,6 +11,7 @@
 
 ### Changed
 
+- Add Ubuntu Noble `wkhtmltopdf` runtime support to the standalone Python 3.14 pythonnet base image.
 - Configure 3.13 pythonnet-based images to use CoreCLR by default (`PYTHONNET_RUNTIME=coreclr`) so `import clr` works on ASP.NET images.
 - Update 3.13 bookworm recordlinkage dependency pins to wheel-compatible versions (`numpy/pandas/pydantic/jellyfish`) for reliable builds.
 

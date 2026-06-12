@@ -9,6 +9,7 @@ Reusable production base image for ASP.NET Core applications that need Python 3.
 - Virtual environment: `/opt/venv`
 - Python packages from `requirements.txt`
 - pythonnet configured for CoreCLR
+- `wkhtmltopdf` from Ubuntu Noble packages
 
 The image intentionally does not run `dotnet restore`, `dotnet publish`, `npm install`, or any other app build command.
 
@@ -78,6 +79,8 @@ docker run --rm "$IMAGE" python -c "import sys; print(sys.executable); print(sys
 docker run --rm "$IMAGE" python -c "import splink,duckdb,jellyfish,polars,pyarrow,pydantic,pythonnet; print('packages OK')"
 docker run --rm "$IMAGE" python -c "from pythonnet import load; load('coreclr'); import clr; print('coreclr load OK')"
 docker run --rm "$IMAGE" sh -c 'test -f "$PYTHONNET_PYDLL" && echo "$PYTHONNET_PYDLL"'
+docker run --rm "$IMAGE" wkhtmltopdf --version
+docker run --rm "$IMAGE" sh -c "printf '<html><body><h1>ok</h1></body></html>' > /tmp/in.html && wkhtmltopdf /tmp/in.html /tmp/out.pdf && test -s /tmp/out.pdf"
 ```
 
 ## Environment Variables
