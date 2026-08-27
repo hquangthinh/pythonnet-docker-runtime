@@ -3,8 +3,7 @@
 ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0-noble
 ARG PYTHON_VERSION=3.14.5
 ARG PYTHON_SHA256=7e32597b99e5d9a39abed35de4693fa169df3e5850d4c334337ffd6a19a36db6
-ARG PYTHON_PREFIX=/opt/python/3.14.5
-ARG VENV_PATH=/opt/venv
+ARG PYTHON_PREFIX=/opt/python/${PYTHON_VERSION}
 
 # Ubuntu noble is used instead of Alpine because pythonnet, CoreCLR, and
 # scientific Python packages are much better supported on glibc-based images.
@@ -15,7 +14,6 @@ FROM ${DOTNET_ASPNET_IMAGE} AS python-builder
 ARG PYTHON_VERSION
 ARG PYTHON_SHA256
 ARG PYTHON_PREFIX
-ARG VENV_PATH
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -54,6 +52,7 @@ RUN set -eux; \
     rm python.tar.xz; \
     cd /usr/src/python; \
     gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
+    LDFLAGS="-Wl,-rpath,${PYTHON_PREFIX}/lib" \
     ./configure \
         --build="$gnuArch" \
         --prefix="$PYTHON_PREFIX" \
@@ -72,21 +71,23 @@ RUN set -eux; \
             \( -type d -a \( -name test -o -name tests -o -name idle_test \) \) \
             -o \( -type f -a \( -name '*.pyc' -o -name '*.pyo' -o -name 'libpython*.a' \) \) \
         \) -exec rm -rf '{}' +; \
-    LD_LIBRARY_PATH="$PYTHON_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" "$PYTHON_PREFIX/bin/python3.14" --version
+    ln -s python3.14 "$PYTHON_PREFIX/bin/python"; \
+    ln -s pip3.14 "$PYTHON_PREFIX/bin/pip"; \
+    "$PYTHON_PREFIX/bin/python" --version
 
-ENV VIRTUAL_ENV=${VENV_PATH}
-ENV PATH="${VENV_PATH}/bin:${PYTHON_PREFIX}/bin:${PATH}"
+ENV PATH="${PYTHON_PREFIX}/bin:${PATH}"
 ENV LD_LIBRARY_PATH="${PYTHON_PREFIX}/lib"
 
-# /opt/venv keeps Python dependencies independent from the OS and from any
-# downstream app. requirements.txt is copied before installation so package
-# layers can be cached separately from application images that inherit this base.
+# Packages are installed straight into the interpreter's own site-packages, not
+# a virtual environment. The custom prefix already isolates this Python from the
+# OS, and an embedded interpreter (C# hosting Python via Python.Runtime) only
+# sees the prefix's site-packages, never a venv. requirements.txt is copied
+# before installation so package layers cache separately from app images.
 COPY requirements.txt /tmp/requirements.txt
 
 RUN set -eux; \
-    python3.14 -m venv "$VIRTUAL_ENV"; \
     python -m pip install --no-cache-dir --upgrade pip setuptools wheel uv; \
-    uv pip install --python "$VIRTUAL_ENV/bin/python" --no-cache --prerelease allow -r /tmp/requirements.txt; \
+    uv pip install --python "$PYTHON_PREFIX/bin/python3.14" --no-cache -r /tmp/requirements.txt; \
     python -m pip uninstall -y uv; \
     python -m pip cache purge; \
     rm -rf /root/.cache /tmp/requirements.txt; \
@@ -95,9 +96,7 @@ RUN set -eux; \
 FROM ${DOTNET_ASPNET_IMAGE} AS runtime
 
 ARG PYTHON_PREFIX
-ARG VENV_PATH
-
-ENV DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Runtime libraries used by CPython and common scientific packages. Compilers
 # and headers are intentionally excluded from the production image. wkhtmltopdf
@@ -110,8 +109,8 @@ RUN set -eux; \
         libbz2-1.0 \
         libexpat1 \
         libffi8 \
-        libgdbm6 \
-        libgdbm-compat4 \
+        libgdbm6t64 \
+        libgdbm-compat4t64 \
         libgomp1 \
         liblzma5 \
         libncursesw6 \
@@ -127,15 +126,20 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=python-builder ${PYTHON_PREFIX} ${PYTHON_PREFIX}
-COPY --from=python-builder ${VENV_PATH} ${VENV_PATH}
 
 # Required defaults for reusable app images. Pythonnet needs CoreCLR settings
 # because it hosts .NET from Python, while C# apps using Python.Runtime need the
 # shared Python library path to initialize the embedded interpreter reliably.
+#
+# All packages live in the prefix's own site-packages, so the `python` binary
+# and an embedded interpreter hosted by a .NET process see the same set with no
+# extra configuration. PYTHONHOME is set as a guard so embedding always resolves
+# this prefix. libpython is built with an rpath to its own lib dir, so
+# LD_LIBRARY_PATH is a convenience for third-party .so files, not a requirement.
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    VIRTUAL_ENV=${VENV_PATH} \
-    PATH="${VENV_PATH}/bin:${PYTHON_PREFIX}/bin:${PATH}" \
+    PATH="${PYTHON_PREFIX}/bin:${PATH}" \
+    PYTHONHOME=${PYTHON_PREFIX} \
     DOTNET_ROOT=/usr/share/dotnet \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     PYTHONNET_RUNTIME=coreclr \
@@ -149,7 +153,10 @@ RUN set -eux; \
     pip --version; \
     dotnet --info; \
     test -f "$PYTHONNET_PYDLL"; \
+    if ldd "$PYTHONNET_PYDLL" | grep -q 'not found'; then ldd "$PYTHONNET_PYDLL"; exit 1; fi; \
     python -c "import sys; print(sys.executable); print(sys.version)"; \
+    env -u LD_LIBRARY_PATH python -c "import sys; print('rpath OK', sys.version)"; \
+    env -u PYTHONHOME -u PYTHONPATH "$PYTHON_PREFIX/bin/python3.14" -c "import splink, pythonnet; print('embedded-style import OK')"; \
     python -c "import pythonnet; print('pythonnet import OK')"; \
     python -c "from pythonnet import load; load('coreclr'); import clr; print('coreclr load OK')"; \
     python -c "import splink,duckdb,jellyfish,polars,pyarrow,pydantic; print('data packages OK')"; \
