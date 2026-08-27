@@ -31,6 +31,21 @@ These workflows publish separate Docker Hub repositories instead of the `dotnet-
 | `<user>/dotnet10-python313-pythonnet-base` | `10.0-python3.13-noble` |
 | `<user>/dotnet10-python314-pythonnet-base` | `10.0-python3.14-noble` |
 
+## Example app
+
+`examples/aspnet10-python314-splink-smoke/` is an ASP.NET Core 10 app that uses `dotnet10-python314-pythonnet-base` as its runtime parent. It starts the embedded Python engine with pythonnet at app startup, runs smoke tests for `splink`, `duckdb`, `jellyfish`, `polars`, `pyarrow` and `pydantic` from a custom Python module, and exposes them through a REST API with a Scalar UI at `/scalar/v1`.
+
+| Image repository | Tag |
+|------------------|-----|
+| `<user>/dotnet10-python314-splink-smoke-example` | `10.0-python3.14-noble` |
+
+```bash
+docker run --rm -p 8080:8080 hquangthinh/dotnet10-python314-splink-smoke-example:10.0-python3.14-noble
+curl -X POST http://localhost:8080/api/python/tests/run
+```
+
+See `examples/aspnet10-python314-splink-smoke/README.md` for details.
+
 ## Dependency stacks
 
 - `pythonnet` images: `pythonnet==3.0.3` (3.12) or `pythonnet==3.0.5` (3.13)

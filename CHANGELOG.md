@@ -4,6 +4,8 @@
 
 ### Added
 
+- Add `examples/aspnet10-python314-splink-smoke`, an ASP.NET Core 10 app built on the `dotnet10-python314-pythonnet-base` image that hosts Python via pythonnet at startup, smoke-tests splink/duckdb/jellyfish/polars/pyarrow/pydantic through a REST API, and serves a Scalar UI.
+- Add GitHub workflow to build, smoke-test, and publish `dotnet10-python314-splink-smoke-example:10.0-python3.14-noble`.
 - Add standalone `docker-dotnet10-python314-pythonnet-base` image with CPython 3.14.5, pythonnet, Splink, DuckDB, Polars, PyArrow, Jellyfish, and Pydantic pins.
 - Add GitHub workflow to build and publish `dotnet10-python314-pythonnet-base:10.0-python3.14-noble`.
 - Add `aspnet10 + python3.13 + bookworm` Dockerfiles for base, pythonnet, and pythonnet-recordlinkage images.

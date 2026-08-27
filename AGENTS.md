@@ -9,6 +9,8 @@
 - Derived images:
   - `..._pythonnet/<distro>/Dockerfile`
   - `..._recordlinkage/<distro>/Dockerfile`
+- Standalone base images: `docker-dotnet10-python31{3,4}-pythonnet-base/Dockerfile`
+- Example app consuming the 3.14 base: `examples/aspnet10-python314-splink-smoke/` (ASP.NET Core 10 + pythonnet + Scalar; workflow `.github/workflows/example-aspnet10-python314-splink-smoke.yml` builds, smoke-tests via curl, then pushes)
 - Current distro matrix in tree:
   - `aspnet8/9/10 + python3.12` on `bookworm`
   - `aspnet10 + python3.13` on `bookworm`, `alpine3`, and `azurelinux`

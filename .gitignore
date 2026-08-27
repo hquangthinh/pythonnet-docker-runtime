@@ -1,1 +1,4 @@
-﻿.idea
+.idea
+bin/
+obj/
+__pycache__/
